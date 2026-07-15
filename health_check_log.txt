@@ -1,0 +1,6 @@
+https://api.github.com is UP (status 200)
+https://this-site-does-not-exist-12345.com is DOWN — connection failed
+https://aws.amazon.com is UP (status 200)
+https://api.github.com is UP (status 200)
+https://this-site-does-not-exist-12345.com is DOWN — connection failed
+https://aws.amazon.com is UP (status 200)
