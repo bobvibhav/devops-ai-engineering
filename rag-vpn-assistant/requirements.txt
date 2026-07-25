@@ -1,0 +1,3 @@
+chromadb
+boto3
+python-dotenv
