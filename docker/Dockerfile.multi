@@ -1,0 +1,27 @@
+# ---------- Stage 1: builder ----------
+FROM python:3.13 AS builder
+
+WORKDIR /app
+
+COPY requirements.txt .
+RUN pip install --user -r requirements.txt
+
+# ---------- Stage 2: final (production) ----------
+FROM python:3.13-slim
+
+WORKDIR /app
+
+# Create the non-root user FIRST, before copying anything into its home
+RUN useradd --create-home appuser
+
+# Copy packages into appuser's home directory, not root's
+COPY --from=builder --chown=appuser:appuser /root/.local /home/appuser/.local
+COPY --chown=appuser:appuser app.py .
+
+# PATH now points to appuser's local bin, matching where packages actually live
+ENV PATH=/home/appuser/.local/bin:$PATH
+
+# Switch to non-root user LAST, right before CMD
+USER appuser
+
+CMD ["python", "app.py"]
