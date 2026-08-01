@@ -1,0 +1,40 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.vol
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+    volumes:
+      - ./data:/app/data
+    networks:
+      - vibhav-net
+
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: vibhavdb
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: secret123
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    networks:
+      - vibhav-net
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d vibhavdb"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+networks:
+  vibhav-net:
+
+volumes:
+  db-data:
