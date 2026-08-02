@@ -1,0 +1,18 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: vibhav-app-job
+spec:
+  template:
+    spec:
+      containers:
+        - name: vibhav-app
+          image: 302524629626.dkr.ecr.ap-south-1.amazonaws.com/vibhav-app:v1
+          imagePullPolicy: IfNotPresent
+          envFrom:
+            - configMapRef:
+                name: vibhav-config
+      imagePullSecrets:
+        - name: ecr-secret
+      restartPolicy: Never
+  backoffLimit: 2

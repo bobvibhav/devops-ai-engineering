@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vibhav-app-deployment
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: vibhav-app
+  template:
+    metadata:
+      labels:
+        app: vibhav-app
+    spec:
+      imagePullSecrets:
+        - name: ecr-secret
+      containers:
+        - name: vibhav-app
+          image: 302524629626.dkr.ecr.ap-south-1.amazonaws.com/vibhav-app:v1
+          imagePullPolicy: IfNotPresent
