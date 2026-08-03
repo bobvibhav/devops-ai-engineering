@@ -1,4 +1,5 @@
 import requests
+# CI/CD pipeline test - triggers automated build and push to ECR
 from datetime import datetime
 
 response = requests.get("https://api.github.com")
