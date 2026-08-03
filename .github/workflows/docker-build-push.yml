@@ -1,4 +1,4 @@
-name: Build and Push to ECR
+name: Build, Push, and Deploy
 
 on:
   push:
@@ -9,6 +9,8 @@ on:
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
+    outputs:
+      image_tag: ${{ steps.set-tag.outputs.tag }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -30,3 +32,26 @@ jobs:
         run: |
           docker tag vibhav-app:${{ github.sha }} 302524629626.dkr.ecr.ap-south-1.amazonaws.com/vibhav-app:${{ github.sha }}
           docker push 302524629626.dkr.ecr.ap-south-1.amazonaws.com/vibhav-app:${{ github.sha }}
+
+      - name: Set output tag
+        id: set-tag
+        run: echo "tag=${{ github.sha }}" >> "$GITHUB_OUTPUT"
+
+  deploy-to-eks:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-south-1
+
+      - name: Update kubeconfig for EKS
+        run: aws eks update-kubeconfig --name vibhav-eks-cluster --region ap-south-1
+
+      - name: Update Deployment image and roll out
+        run: |
+          kubectl set image deployment/vibhav-app-deployment vibhav-app=302524629626.dkr.ecr.ap-south-1.amazonaws.com/vibhav-app:${{ needs.build-and-push.outputs.image_tag }}
+          kubectl rollout status deployment/vibhav-app-deployment

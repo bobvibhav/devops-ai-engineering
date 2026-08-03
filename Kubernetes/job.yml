@@ -9,9 +9,12 @@ spec:
         - name: vibhav-app
           image: 302524629626.dkr.ecr.ap-south-1.amazonaws.com/vibhav-app:v1
           imagePullPolicy: IfNotPresent
+          command: ["sh", "-c", "env | grep -E 'LOG_LEVEL|APP_ENV|API_KEY'"]
           envFrom:
             - configMapRef:
                 name: vibhav-config
+            - secretRef:
+                name: vibhav-secret
       imagePullSecrets:
         - name: ecr-secret
       restartPolicy: Never
